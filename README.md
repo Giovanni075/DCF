@@ -1,37 +1,69 @@
-# 📈 Python DCF Valuation Model
+DCF Analyzer v2.1 — Modelo de Valuation Interativo
+Link do App: 🚀 Acessar Dashboard em Tempo Real
 
-Este repositório contém um modelo de Fluxo de Caixa Descontado (DCF) automatizado em Python, desenvolvido para realizar o valuation de empresas de capital aberto com rigor técnico e eficiência analítica. O projeto une os fundamentos contábeis da UEFS com lógica de programação para suporte à tomada de decisão estratégica em FP&A e M&A.
+Este repositório contém um sistema avançado de Valuation por Fluxo de Caixa Descontado (DCF) automatizado em Python. O projeto foi desenhado para unir o rigor técnico das Ciências Contábeis com a eficiência da Análise e Desenvolvimento de Sistemas (ADS), focado em suporte à tomada de decisão estratégica em FP&A e M&A.
 
-## 🔍 Visão Geral
-O modelo processa dados financeiros históricos para projetar fluxos de caixa futuros e determinar o valor intrínseco de um ativo.
-* **Rigor Contábil**: Análise profunda de Demonstrações Financeiras (DRE e Balanço) para embasar as premissas.
-* **Diferencial Analítico**: Foco em análise Marginal para capturar a real geração de valor em cenários de crescimento.
-* **Automação**: Coleta de dados via API e geração automática de indicadores-chave como EBITDA, Margens e Fluxo de Caixa Livre.
+🎯 Proposta do Projeto
+Diferente de modelos estáticos em planilhas, este Analyzer permite uma exploração dinâmica de teses de investimento. Ele automatiza a coleta de dados de empresas de capital aberto (B3) e permite o ajuste em tempo real de premissas macroeconômicas e operacionais.
 
-## 🛠️ Tecnologias e Bibliotecas
-* **Python**: Core da automação e lógica de modelagem.
-* **Pandas & NumPy**: Manipulação de grandes volumes de dados e cálculos financeiros complexos.
-* **Yfinance**: Extração de dados de mercado e cotações em tempo real.
-* **Matplotlib**: Visualização de projeções e análise de sensibilidade.
+🛠️ Stack Técnica e Ambiente Anaconda
+Um diferencial fundamental deste projeto é a sua reprodutibilidade e estabilidade. O desenvolvimento e a validação dos cálculos financeiros foram realizados utilizando o Anaconda Navigator.
 
-## 📊 Metodologia Financeira
-A estruturação do modelo segue as melhores práticas de mercado:
-1. **Projeções de Fluxo de Caixa (FCFF)**: Horizonte de 5 a 10 anos baseado em taxas de crescimento histórico e setorial.
-2. **Cálculo do WACC**: Estimativa do custo médio ponderado de capital com ajuste de prêmios de risco.
-3. **Valor de Perpetuidade (Terminal Value)**: Aplicação do modelo de Gordon com taxas de crescimento conservadoras.
-4. **Análise de Sensibilidade**: Matriz que cruza variações de WACC vs. g para definir um range de valor justo.
+Por que Anaconda?
+O uso do ecossistema Anaconda foi estratégico para garantir:
 
-## 🚀 Como Executar
-1. Clone este repositório: `git clone https://github.com/Giovanni075/dcf-python`
-2. Instale as dependências necessárias: `pip install -r requirements.txt`
-3. Execute o script principal ou o Jupyter Notebook para visualizar a análise completa.
+Isolamento de Ambiente: Prevenção de conflitos entre bibliotecas de ciência de dados (Pandas, Numpy) e interface (Streamlit).
 
-## 👨‍💻 Sobre o Autor
-**Giovanni Silva de Souza**
-* Graduando em Ciências Contábeis (UEFS) e Análise e Desenvolvimento de Sistemas.
-* Assistente Fiscal na Stratus, com sólida base em rotinas contábeis e fiscais.
-* Certificado CPA-20 (ANBIMA).
-* Objetivo: Atuar em FP&A, Valuation e M&A, gerando valor através de análise de dados e visão estratégica.
+Integridade dos Cálculos: Garantia de que as funções estatísticas e financeiras utilizem versões estáveis, evitando erros de precisão contábil.
 
----
-📫 **Vamos nos conectar?** [LinkedIn](https://www.linkedin.com/in/giovanni-silva-de-souza-b50198282)
+Workflow Profissional: Demonstração de domínio de ferramentas padrão da indústria para Data Science e Engenharia de Dados.
+
+🚀 Funcionalidades de Elite
+Integração com B3: Busca automática de 5 anos de histórico financeiro via Yahoo Finance API.
+
+Análise de Sensibilidade Interativa: Heatmap dinâmico que cruza WACC vs. Crescimento Perpetuidade (g) para definir o range de valor justo.
+
+Decomposição Waterfall: Visualização clara do peso do Valor Terminal na composição do Equity Value.
+
+DCF Reverso: Algoritmo de otimização numérica que calcula o crescimento implícito necessário para justificar o preço atual de mercado.
+
+Projeção de Cenários: Alternância instantânea entre cenários Base, Otimista e Conservador com impactos automáticos em margens e payout.
+
+📡 Resiliência de Sistemas (Contingência de API)
+Como boa prática de ADS, o sistema conta com uma camada de proteção contra falhas externas. Caso a API do Yahoo Finance atinja o limite de requisições (Rate Limit) no servidor de nuvem, o App oferece o Modo de Demonstração.
+
+Dados Mockados: Carregamento instantâneo de dados históricos auditados da WEG S.A., permitindo que a análise de funcionalidades e a navegação nunca sejam interrompidas.
+
+💻 Como Executar (Ambiente Local)
+Se você utiliza Anaconda, siga os passos abaixo para rodar o modelo:
+
+Criar o ambiente via terminal (Conda Prompt):
+
+Bash
+conda create --name dcf-analyzer python=3.10
+Ativar o ambiente:
+
+Bash
+conda activate dcf-analyzer
+Instalar dependências (Padrão requirements.txt):
+
+Bash
+pip install -r requirements.txt
+Rodar o App:
+
+Bash
+streamlit run modelo_valuation.py
+🧠 Sobre o Autor
+Giovanni Silva de Souza
+
+🎓 Graduando em Ciências Contábeis (7º Semestre) — Universidade Estadual de Feira de Santana (UEFS).
+
+💻 Graduando em Análise e Desenvolvimento de Sistemas.
+
+🏦 Certificado CPA-20 (ANBIMA).
+
+💼 Atuante em rotinas administrativas e organizacionais na Stratus.
+
+🎯 Foco de carreira em Asset Management, Análise de Crédito e FP&A.
+
+Desenvolvido com Python, Streamlit, Pandas e muito rigor contábil.
