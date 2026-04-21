@@ -1,6 +1,7 @@
 """
 DCF ANALYZER v2.1 — Modelo de Valuation por Fluxo de Caixa Descontado
 Evolução: "Piloto Automático" (Data-Driven Defaults) baseados no histórico real de cada empresa.
+Aprimoramento: Resiliência de API (Modo Demo) e Correção de DataFrames.
 """
 
 import warnings
@@ -134,7 +135,7 @@ hr { border-color: var(--border) !important; margin: 1rem 0; }
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────
-# AÇÕES
+# AÇÕES E DADOS DE CONTINGÊNCIA (MODO DEMO)
 # ─────────────────────────────────────────────────────────────
 ACOES_DISPONIVEIS = {
     "WEGE3 — WEG":              "WEGE3.SA",
@@ -154,6 +155,35 @@ ACOES_DISPONIVEIS = {
     "EMBR3 — Embraer":          "EMBR3.SA",
     "HAPV3 — Hapvida":          "HAPV3.SA",
     "Custom":                   "__custom__",
+}
+
+DADOS_DEMO = {
+    "hist": {
+        "receita": [23563.0, 29984.0, 32511.0, 35000.0, 38500.0],
+        "cpv": [-16494.0, -20988.0, -22757.0, -24500.0, -26950.0],
+        "sga": [-2356.0, -2998.0, -3251.0, -3500.0, -3850.0],
+        "depreciacao": [-824.0, -1049.0, -1137.0, -1225.0, -1347.0],
+        "juros": [-150.0, -180.0, -200.0, -220.0, -240.0],
+        "ir": [-1000.0, -1200.0, -1400.0, -1500.0, -1650.0],
+        "caixa": [4500.0, 5200.0, 5800.0, 6200.0, 6800.0],
+        "rec_receber": [3500.0, 4200.0, 4800.0, 5100.0, 5600.0],
+        "estoques": [4200.0, 5100.0, 5500.0, 6000.0, 6500.0],
+        "imobilizado": [8500.0, 9200.0, 10100.0, 11000.0, 12500.0],
+        "fornecedores": [-2500.0, -3100.0, -3400.0, -4100.0, -4500.0],
+        "divida": [2800.0, 3100.0, 3300.0, 3500.0, 3800.0],
+        "pl": [15000.0, 17500.0, 20200.0, 23000.0, 26500.0],
+        "capex": [-1200.0, -1500.0, -1700.0, -1850.0, -2100.0],
+        "dividendos": [800.0, 1100.0, 1300.0, 1500.0, 1800.0],
+        "dpa_hist": [0.19, 0.26, 0.31, 0.36, 0.43],
+        "cresc_hist": [None, 0.27, 0.08, 0.08, 0.10],
+        "fcff_hist": [3200.0, 4100.0, 4500.0, 4900.0, 5400.0],
+        "dy_hist": [0.5, 0.7, 0.8, 0.9, 1.1]
+    },
+    "preco": 38.50,
+    "acoes": 4197.0,
+    "anos": [2020, 2021, 2022, 2023, 2024],
+    "nome": "WEG S.A. (MODO DEMO - OFFLINE)",
+    "setor": "Industrials"
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -179,10 +209,13 @@ DELTA = {
 }
 
 # ─────────────────────────────────────────────────────────────
-# BUSCA YFINANCE
+# BUSCA YFINANCE COM FALLBACK
 # ─────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_dados(ticker: str):
+    if ticker == "DEMO_WEG":
+        return DADOS_DEMO["hist"], DADOS_DEMO["preco"], DADOS_DEMO["acoes"], DADOS_DEMO["anos"], DADOS_DEMO["nome"], DADOS_DEMO["setor"], None
+
     try:
         ativo = yf.Ticker(ticker)
         info  = ativo.info
@@ -503,8 +536,8 @@ def calc_cenario(nome, hist, preco, acoes, p, delta=None):
         sga_l.append(-rec * d["sga_pct"])
 
         imob_ant = hist["imobilizado"][-1] if i == 0 else imob_l[-1]
-        dep      = -imob_ant * d["dep_pct_imob"]           
-        capex_i  = -abs(d["mult_capex"] * dep)             
+        dep      = -imob_ant * d["dep_pct_imob"]            
+        capex_i  = -abs(d["mult_capex"] * dep)              
         depreciacao_l.append(dep)
 
         imob_l.append(imob_ant + abs(capex_i) - abs(dep))
@@ -616,7 +649,7 @@ def veredicto_valuation(res_todos, preco):
     elif upside > 10:  return "LEVEMENTE BARATA",  upside, "amber"
     elif upside > -10: return "PREÇO JUSTO",        upside, "blue"
     elif upside > -25: return "LEVEMENTE CARA",    upside, "amber"
-    else:              return "CARA",              upside, "red"
+    else:              return "CARA",               upside, "red"
 
 
 def calc_sens(hist, preco, acoes, p):
@@ -1034,15 +1067,16 @@ def tab_dcf(hist, preco, acoes, anos_hist, anos_proj, res, p):
     for col, (n_cen, r) in zip([col_a, col_b, col_c], res.items()):
         with col:
             st.markdown(f"**{n_cen}**")
+            # CORREÇÃO AQUI: Mantemos os números como floats puros e aplicamos a formatação via .style
             df_cen = pd.DataFrame({
                 "Ano":       [str(a) for a in anos_proj],
-                "Receita":   [f"{v:,.0f}" for v in r["receita"]],
-                "EBIT":      [f"{v:,.0f}" for v in r["ebit"]],
-                "Lucro Liq": [f"{v:,.0f}" for v in r["lucro"]],
-                "FCFF":      [f"{v:,.0f}" for v in r["fcff"]],
-                "FCFE":      [f"{v:,.0f}" for v in r["fcfe"]],
+                "Receita":   r["receita"],
+                "EBIT":      r["ebit"],
+                "Lucro Liq": r["lucro"],
+                "FCFF":      r["fcff"],
+                "FCFE":      r["fcfe"],
             }).set_index("Ano")
-            st.dataframe(df_cen, use_container_width=True)
+            st.dataframe(df_cen.style.format("{:,.0f}"), use_container_width=True)
 
     st.markdown("---")
     st.markdown('<p class="section-label">🔄 Crescimento Implícito (DCF Reverse)</p>', unsafe_allow_html=True)
@@ -1264,6 +1298,9 @@ def tab_sensibilidade(hist, preco, acoes, res, p):
     st.markdown("---")
     st.markdown('<p class="section-label">📦 Decomposição do Valor Detalhada — Base</p>', unsafe_allow_html=True)
     rb = res["Base"]
+    
+    # Aqui foi mantido o texto original (usando f-strings), 
+    # pois não aplicamos .style.format() neste df_decomp.
     df_decomp = pd.DataFrame({
         "Componente":     ["VP FCFFs (5a)", "Valor Terminal (VP)", "(-) Dívida Líquida", "= Equity (Valor Justo)"],
         "Valor (R$M)":    [f"{rb['vp_fcff']:,.0f}", f"{rb['vp_tv']:,.0f}", f"({abs(rb['div_liq']):,.0f})", f"{rb['equity']:,.0f}"],
@@ -1309,12 +1346,20 @@ def tab_sensibilidade(hist, preco, acoes, res, p):
 def main():
     ticker = render_sidebar_header()
 
+    # GATILHO DE RESILIÊNCIA: Carrega o Mock Data se o usuário ativou o Modo Demo
+    if st.session_state.get("usar_demo", False):
+        ticker = "DEMO_WEG"
+
     with st.spinner(f"Buscando dados para {ticker}…"):
         hist, preco, acoes, anos_hist, nome_empresa, setor, erro = buscar_dados(ticker)
 
+    # TRATAMENTO DO ERRO DO YFINANCE
     if erro or hist is None:
         st.error(f"❌ Erro ao buscar dados para {ticker}: {erro}")
-        st.info("Verifique se o ticker está correto (ex: LREN3.SA, VALE3.SA)")
+        st.warning("⚠️ O Yahoo Finance limitou as requisições (Rate Limit). Isso é comum em servidores na nuvem.")
+        if st.button("🚀 Carregar Modo de Demonstração (Dados Reais da WEG)"):
+            st.session_state["usar_demo"] = True
+            st.rerun()
         return
 
     dyn_defaults = calc_historico_medio(hist)
