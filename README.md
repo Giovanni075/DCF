@@ -1,5 +1,5 @@
 DCF Analyzer v2.1 — Modelo de Valuation Interativo
-Link do App: 🚀 Acessar Dashboard em Tempo Real
+Link do App: 🚀 https://giovanni-valuation.streamlit.app/ Acessar Dashboard em Tempo Real
 
 Este repositório contém um sistema avançado de Valuation por Fluxo de Caixa Descontado (DCF) automatizado em Python. O projeto foi desenhado para unir o rigor técnico das Ciências Contábeis com a eficiência da Análise e Desenvolvimento de Sistemas (ADS), focado em suporte à tomada de decisão estratégica em FP&A e M&A.
 
